@@ -4,7 +4,7 @@ const Navbar = () => {
   return (
     <div className=''>
         <div>
-            <h1 className='text-3xl '>Shopping cart</h1>
+            <h1 className=' text-2xl text-zinc-800 font-bold'>Shopping cart</h1>
         </div>
         <div>
             
