@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { FaUserCircle } from "react-icons/fa";
-import ReactImg from '../assets/react.svg'
+import ReactImg from "../assets/react.svg";
 import { FaTrashAlt } from "react-icons/fa";
-
+import { CartState } from "./Context/Context";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,12 +11,17 @@ const Navbar = () => {
   const cartDropDownRef = useRef(null);
   const dropdownRef = useRef(null);
 
+  const {
+    state: { cart },
+    dispatch,
+  } = CartState();
+
   const toggleUserIcon = () => {
     setIsOpen(!isOpen);
   };
 
   const toggleCartIcon = () => {
-    setCartOpen(!isCartOpen)
+    setCartOpen(!isCartOpen);
   };
 
   const handleClickOutside = (event) => {
@@ -30,22 +35,28 @@ const Navbar = () => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setIsOpen(false);
     }
-
   };
 
   useEffect(() => {
     if (isOpen) {
       document.addEventListener("click", handleClickOutside);
-    } 
+    }
 
     if (isCartOpen) {
       document.addEventListener("click", handleClickOutside);
-    } 
+    }
 
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, [isOpen, isCartOpen]);
+
+  const handleDeleteCart = () => {
+    dispatch({
+      type: "REMOVE_FROM_CART",
+      payload: product,
+    });
+  };
 
   return (
     <div className="flex items-center justify-between gap-40 border-b-2 pb-2">
@@ -65,34 +76,48 @@ const Navbar = () => {
             onClick={toggleCartIcon}
             className="text-3xl text-zinc-500 cursor-pointer"
           />
+          <p className="absolute flex items-center justify-center text-[.9rem] font-bold -top-1 right-11 w-5 h-5 bg-red-500 text-white rounded-full">
+            {cart.length}
+          </p>
           {isCartOpen && (
             <div className=" flex flex-col gap-4  w-[50rem] absolute right-16 top-10 mt-2 bg-white shadow-lg rounded-md p-6">
-              <div className="flex items-start justify-between cursor-pointer bg-blue-50 hover:bg-blue-100 transition-all ease-out px-3 p-4 rounded-md">
-                <div className="flex items-center justify-center gap-4">
-                  <img src={ReactImg} alt="" />
-                  <h1 className="text-gray-700 font-semibold">React Icons</h1>
-                </div>
+              {cart.length > 0 ? (
+                <>
+                  {cart.map((preProd) => {
+                    return (
+                      <div className=" flex items-center justify-between cursor-pointer bg-blue-50 hover:bg-blue-100 transition-all ease-out px-3 p-4 rounded-md">
+                        <div className="flex items-center justify-center gap-4">
+                          <img
+                            className="w-[5rem] rounded-md"
+                            src={preProd.image}
+                            alt=""
+                          />
+                          <h1 className="text-gray-700 font-semibold">
+                            {preProd.name}
+                          </h1>
+                        </div>
+                        <div className="flex items-center justify-center">
+                          <p className="flex items-center justify-center">
+                            {preProd.price.split(".")}
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-center">
+                          <button>
+                            <FaTrashAlt
+                              onClick={handleDeleteCart}
+                              className="text-2xl text-zinc-600 hover:text-zinc-800"
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              ) : (
                 <div>
-                  <p>counter</p>
+                  <h1>Cart is empty !</h1>
                 </div>
-                <div>
-                  <p>$100</p>
-                </div>
-                <div>
-                  <button><FaTrashAlt className="text-2xl text-zinc-600 hover:text-zinc-800" /></button>
-                </div>
-              </div>
-              <div className="flex items-start justify-between bg-blue-50 px-3 p-4 rounded-md">
-                <div>
-                  <img src={ReactImg} alt="" />
-                </div>
-                <div>
-                  <h1>heading</h1>
-                </div>
-                <div>counter</div>
-                <div>price</div>
-                <div>cancel</div>
-              </div>
+              )}
             </div>
           )}
         </div>
